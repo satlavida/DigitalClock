@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=utf-8 />
+<title>HTML5 Clock</title>
+<!--[if IE]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<style>
+
+	@font-face {
+	    font-family: 'Digital7Mono';
+	    src: url('digital-7_mono-webfont.eot');
+	    src: url('digital-7_mono-webfont.eot?#iefix') format('embedded-opentype'),
+	         url('digital-7_mono-webfont.woff') format('woff'),
+	         url('digital-7_mono-webfont.ttf') format('truetype'),
+	         url('digital-7_mono-webfont.svg#Digital7Mono') format('svg');
+	    font-weight: normal;
+	    font-style: normal;
+
+	}
+
+  article, aside, figure, footer, header, hgroup, 
+  menu, nav, section { display: block; }
+  #c{
+  	position: absolute;
+  	left: 40%;
+  	top: 35%;
+  }
+  body{
+  	background: #000;
+  }
+</style>
+</head>
+<body>
+<canvas height="500" width="400" id="c"></canvas>
+
+<script type="text/javascript">
+(function(){
+	var c = document.getElementById('c'), //Get the canvas element
+	    ctx = c.getContext("2d"); //select the canvas.context
+
+
+    //##########################
+	//Format the date accordingly 
+	//that if the value is less
+	//than 10 then instead of 
+	//printing "1"	print "01"
+	//@RETURNS Array [[string,string,string],[string,string,string]]
+	//##########################
+	var createFormattedDate = function(d){ //UTIL function
+		var	h  = d.getHours(), // get hours, seconds, minutes, year, day , month
+			s  = d.getSeconds(),
+			m  = d.getMinutes(),
+			y  = d.getFullYear(),
+			mn = (d.getMonth() + 1),
+			dt = d.getDate(),
+			dy;
+		if(d.getHours() < 10)
+		{
+			h = 0 + d.getHours().toString();
+		}
+		if(d.getSeconds() < 10)
+		{
+			s = 0 + d.getSeconds().toString();
+		}
+		if(d.getMinutes() < 10)
+		{
+			m = 0 + d.getMinutes().toString();
+		}
+		if((d.getMonth()+1) < 10)
+		{
+			mn = 0 + (d.getMonth()+1).toString();
+		}
+		if(d.getDate() < 10)
+		{
+			dt = 0 + d.getDate().toString();
+		}
+		
+		return [[h,m,s],[dt,mn,y]];
+
+	};
+
+	var getWeekdayFormatted = function(d){
+		var dy;
+		switch(d.getDay())
+		{
+			case 1:
+				dy = "MON                        ";
+			break;
+			case 2:
+				dy = "    TUE                    ";
+			break;
+			case 3:
+				dy = "        WED                ";
+			break;
+			case 4:
+				dy = "            THU            ";
+			break;
+			case 5:
+				dy = "                FRI        ";
+			break;
+			case 6:
+				dy = "                    SAT    ";
+			break;
+			case 7:
+				dy = "                        SUN";
+			break;
+			default:
+				dy = "                            UKN";
+			break;
+		};
+
+		return dy;
+	};
+
+	//Create a function to render the canvas board after a particular time    
+	var r = function(){
+		var dt = new Date();
+		//Get the date
+		var d = createFormattedDate(dt);
+	    //clear the board
+		ctx.clearRect(0,0,c.width,c.height);
+		//save the font
+		ctx.font = "70pt Digital7Mono";
+		//create a background for time
+		ctx.fillStyle = "rgba(0,90,255,0.3)";
+		ctx.fillText("88:88:88",10,210);
+		//add the time
+		ctx.fillStyle = "rgb(0,90,255)";
+		ctx.fillText(d[0][0] + ":" + d[0][1] + ":" + d[0][2],10,210);
+		//save the font and change the size 
+		ctx.font = "50pt Digital7Mono";
+		//create background
+		ctx.fillStyle = "rgba(0,90,255,0.3)";
+		ctx.fillText("88:88:8888",25,125);
+		//DEFINED
+		ctx.fillStyle = "rgb(0,90,255)";
+		ctx.fillText( d[1][0] + ":" + d[1][1] + ":" + d[1][2], 25, 125 );
+		//Display which day is it eg "WED"
+		//Create a background
+		ctx.font = "20pt Digital7Mono";
+		ctx.fillStyle = "rgba(0,90,255,0.2)";
+		ctx.fillText("888 888 888 888 888 888 888",20, 265);
+		//Now put a light layer of the days
+		ctx.fillStyle = "rgba(0,90,255,0.4)";
+		ctx.fillText("MON TUE WED THU FRI SAT SUN",20, 265);
+		//Now get the weekday and display without transparency
+		ctx.fillStyle = "rgb(0,90,255)";
+		ctx.fillText(getWeekdayFormatted(dt),20,265);
+	    //Set a timeout to perfrom the action after 1 sec	
+	setTimeout(r,1000);
+	};
+
+	r();
+})();
+</script>
+</body>
+</html>

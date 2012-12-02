@@ -68,8 +68,16 @@
 
 <script type="text/javascript">
 (function(){
-	window.applicationCache.update();
-	var c = document.getElementById('c'), //Get the canvas element
+         if(window.applicationCache)
+         {
+              if(window.applicationCache.status == 4)
+              {
+                  window.applicationCache.update();
+                  window.applicationCache.swapCache();
+              }
+         }
+	
+        	var c = document.getElementById('c'), //Get the canvas element
 	    ctx = c.getContext("2d"); //select the canvas.context
 
 

@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en" manifest="clock.manifest">
 <head>
@@ -7,7 +9,15 @@
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
 
+
+<!-- For mobile and tablet devices -->
+	<meta name="viewport" id="viewport" content="width=device-width, user-scalable=no, minimum-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+
 <style>
+
 
 	@font-face {
 	    font-family: 'Digital7Mono';
@@ -19,19 +29,12 @@
 	    font-weight: normal;
 	    font-style: normal;
 
+
 	}
+
 
   article, aside, figure, footer, header, hgroup, 
   menu, nav, section { display: block; }
-  #c{
-  	position: absolute;
-  	left: 40%;
-  	top: 35%;
-  }
-  body{
-  	background: #000;
-  }
-
   @media screen and (min-width:1000px)
   {
   	#c{
@@ -56,17 +59,21 @@
   		top: 35%;
   	}
   }
-
-
+  body{
+  	background: #000;
+  }
 </style>
 </head>
 <body>
 <canvas height="500" width="400" id="c"></canvas>
 
+
 <script type="text/javascript">
 (function(){
 	var c = document.getElementById('c'), //Get the canvas element
 	    ctx = c.getContext("2d"); //select the canvas.context
+
+
 
 
     //##########################
@@ -104,10 +111,13 @@
 		{
 			dt = 0 + d.getDate().toString();
 		}
-		
+
+
 		return [[h,m,s],[dt,mn,y]];
 
+
 	};
+
 
 	var getWeekdayFormatted = function(d){
 		var dy;
@@ -139,8 +149,10 @@
 			break;
 		};
 
+
 		return dy;
 	};
+
 
 	//Create a function to render the canvas board after a particular time    
 	var r = function(){
@@ -180,9 +192,12 @@
 	setTimeout(r,1000);
 	};
 
+
 	r();
 })();
 </script>
-
 </body>
 </html>
+
+ 
+

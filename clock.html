@@ -67,6 +67,9 @@
 
 
 <script type="text/javascript">
+	//Making the color a global variable; ie : it can be changed. 
+	window.clockColor = [0,90,255];
+
 (function(){
          if(window.applicationCache)
          {
@@ -79,10 +82,6 @@
 	
         	var c = document.getElementById('c'), //Get the canvas element
 	    ctx = c.getContext("2d"); //select the canvas.context
-
-
-	//Making the color a global variable; ie : it can be changed. 
-	window.clockColor = [0,90,255];
 
     //##########################
 	//Format the date accordingly 

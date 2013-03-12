@@ -81,7 +81,8 @@
 	    ctx = c.getContext("2d"); //select the canvas.context
 
 
-
+	//Making the color a global variable; ie : it can be changed. 
+	window.clockColor = [0,90,255];
 
     //##########################
 	//Format the date accordingly 
@@ -164,36 +165,37 @@
 	//Create a function to render the canvas board after a particular time    
 	var r = function(){
 		var dt = new Date();
+		var cC = window.clockColor;
 		//Get the date
 		var d = createFormattedDate(dt);
-	    //clear the board
+	        //clear the board
 		ctx.clearRect(0,0,c.width,c.height);
 		//save the font
 		ctx.font = "70pt Digital7Mono";
 		//create a background for time
-		ctx.fillStyle = "rgba(0,90,255,0.3)";
+		ctx.fillStyle ="rgba(" + cC[0] + "," + cC[1] + "," + cC[2] + ",0.3)";
 		ctx.fillText("88:88:88",10,210);
 		//add the time
-		ctx.fillStyle = "rgb(0,90,255)";
+		ctx.fillStyle = "rgb(" + cC[0] + "," + cC[1] + "," + cC[2] + ")"; 
 		ctx.fillText(d[0][0] + ":" + d[0][1] + ":" + d[0][2],10,210);
 		//save the font and change the size 
 		ctx.font = "50pt Digital7Mono";
 		//create background
-		ctx.fillStyle = "rgba(0,90,255,0.3)";
+		ctx.fillStyle = "rgba(" + cC[0] + "," + cC[1] + "," + cC[2] + ",0.3)";
 		ctx.fillText("88:88:8888",25,125);
 		//DEFINED
-		ctx.fillStyle = "rgb(0,90,255)";
+		ctx.fillStyle = "rgb(" + cC[0] + "," + cC[1] + "," + cC[2] + ")";
 		ctx.fillText( d[1][0] + ":" + d[1][1] + ":" + d[1][2], 25, 125 );
 		//Display which day is it eg "WED"
 		//Create a background
 		ctx.font = "20pt Digital7Mono";
-		ctx.fillStyle = "rgba(0,90,255,0.2)";
+		ctx.fillStyle = "rgba(" + cC[0] + "," + cC[1] + "," + cC[2] + ",0.2)";
 		ctx.fillText("888 888 888 888 888 888 888",20, 265);
 		//Now put a light layer of the days
-		ctx.fillStyle = "rgba(0,90,255,0.4)";
+		ctx.fillStyle = "rgba(" + cC[0] + "," + cC[1] + "," + cC[2] + ",0.4)";
 		ctx.fillText("MON TUE WED THU FRI SAT SUN",20, 265);
 		//Now get the weekday and display without transparency
-		ctx.fillStyle = "rgb(0,90,255)";
+		ctx.fillStyle = "rgb(" + cC[0] + "," + cC[1] + "," + cC[2] + ")";
 		ctx.fillText(getWeekdayFormatted(dt),20,265);
 	    //Set a timeout to perfrom the action after 1 sec	
 	setTimeout(r,1000);

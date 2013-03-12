@@ -79,9 +79,39 @@
                   window.applicationCache.swapCache();
               }
          }
+         
+         // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+         // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+ 
+	// requestAnimationFrame polyfill by Erik Möller
+	// fixes from Paul Irish and Tino Zijdel
 	
-        	var c = document.getElementById('c'), //Get the canvas element
+	var lastTime = 0;
+	var vendors = ['ms', 'moz', 'webkit', 'o'];
+	for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+	window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+	window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame']
+	                           || window[vendors[x]+'CancelRequestAnimationFrame'];
+	}
+	
+	if (!window.requestAnimationFrame)
+	window.requestAnimationFrame = function(callback, element) {
+	    var currTime = new Date().getTime();
+	    var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+	    var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+	      timeToCall);
+	    lastTime = currTime + timeToCall;
+	    return id;
+	};
+	
+	if (!window.cancelAnimationFrame)
+	window.cancelAnimationFrame = function(id) {
+	    clearTimeout(id);
+	};
+	
+        var c   = document.getElementById('c'), //Get the canvas element
 	    ctx = c.getContext("2d"); //select the canvas.context
+	    
 
     //##########################
 	//Format the date accordingly 
@@ -196,8 +226,8 @@
 		//Now get the weekday and display without transparency
 		ctx.fillStyle = "rgb(" + cC[0] + "," + cC[1] + "," + cC[2] + ")";
 		ctx.fillText(getWeekdayFormatted(dt),20,265);
-	    //Set a timeout to perfrom the action after 1 sec	
-	setTimeout(r,1000);
+	    	//Set a timeout to perfrom the action after 1 sec	
+         	window.requestAnimationFrame(r);
 	};
 
 

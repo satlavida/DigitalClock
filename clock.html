@@ -67,8 +67,6 @@
 
 
 <script type="text/javascript">
-	//Making the color a global variable; ie : it can be changed. 
-	window.clockColor = [0,90,255];
 
 (function() {
          if(window.applicationCache)
@@ -97,11 +95,17 @@
          		window.clockColor = [cc[0],cc[1],cc[2]];
          	}
          }
+         else {
+         	window.clockColor = [0,90,255];
+         }
     window.setClockColor = function(a) {
     	if(Array.isArray(a) == true) {
     		window.clockColor = a;
     		if(hasStorage) {
     			localStorage.setItem("clockColor",a);
+    		}
+    		else {
+    			window.clockColor = a;
     		}
     	}
     	else {
@@ -111,8 +115,13 @@
 
     window.getClockColor = function() {
     	if(hasStorage) {
-    		var cc = localStorage.getItem("clockColor").split(",");
-    		return [cc[0],cc[1],cc[2]];
+    		if(localStorage.getItem("clockClock") != null) {
+    			var cc = localStorage.getItem("clockColor").split(",");
+    			return [cc[0],cc[1],cc[2]];
+    		}
+    		else{
+    			window.setClockColor([0,90,255]);
+    		}
     	}
     	else {
     		return window.clockColor;

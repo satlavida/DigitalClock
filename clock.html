@@ -70,7 +70,7 @@
 	//Making the color a global variable; ie : it can be changed. 
 	window.clockColor = [0,90,255];
 
-(function(){
+(function() {
          if(window.applicationCache)
          {
               if(window.applicationCache.status == 4)
@@ -79,9 +79,47 @@
                   window.applicationCache.swapCache();
               }
          }
-         
-         // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-         // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+         var hasStorage = (function() {
+      		try {
+      			var mod = "lame";
+        		localStorage.setItem(mod, mod);
+       			localStorage.removeItem(mod);
+       			return true;
+      		} 
+      		catch(e) {
+        		return false;
+      		}
+    	}());
+
+         if(hasStorage) {
+         	if(localStorage.getItem("clockClock") != null) {
+         		var cc = localStorage.getItem("clockColor").split(",");
+         		window.clockColor = [cc[0],cc[1],cc[2]];
+         	}
+         }
+    window.setClockColor = function(a) {
+    	if(Array.isArray(a) == true) {
+    		window.clockColor = a;
+    		if(hasStorage) {
+    			localStorage.setItem("clockColor",a);
+    		}
+    	}
+    	else {
+    		console.log("Error: Input is not an array");
+    	}
+    };
+
+    window.getClockColor = function() {
+    	if(hasStorage) {
+    		var cc = localStorage.getItem("clockColor").split(",");
+    		return [cc[0],cc[1],cc[2]];
+    	}
+    	else {
+    		return window.clockColor;
+    	}
+    };     
+    // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+    // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
  
 	// requestAnimationFrame polyfill by Erik Möller
 	// fixes from Paul Irish and Tino Zijdel
@@ -109,7 +147,7 @@
 	    clearTimeout(id);
 	};
 	
-        var c   = document.getElementById('c'), //Get the canvas element
+    var c   = document.getElementById('c'), //Get the canvas element
 	    ctx = c.getContext("2d"); //select the canvas.context
 	    
 
@@ -194,7 +232,7 @@
 	//Create a function to render the canvas board after a particular time    
 	var r = function(){
 		var dt = new Date();
-		var cC = window.clockColor;
+		var cC = window.getClockColor();
 		//Get the date
 		var d = createFormattedDate(dt);
 	        //clear the board

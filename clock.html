@@ -7,12 +7,15 @@
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
 
+
 <!-- For mobile and tablet devices -->
 	<meta name="viewport" id="viewport" content="width=device-width, user-scalable=no, minimum-scale=1, maximum-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
+
 <style>
+
 
 	@font-face {
 	    font-family: 'Digital7Mono';
@@ -24,7 +27,9 @@
 	    font-weight: normal;
 	    font-style: normal;
 
+
 	}
+
 
   article, aside, figure, footer, header, hgroup, 
   menu, nav, section { display: block; }
@@ -60,11 +65,91 @@
 <body>
 <canvas height="500" width="400" id="c"></canvas>
 
-<script type="text/javascript">
-(function(){
-	var c = document.getElementById('c'), //Get the canvas element
-	    ctx = c.getContext("2d"); //select the canvas.context
 
+<script type="text/javascript">
+	//Making the color a global variable; ie : it can be changed. 
+	window.clockColor = [0,90,255];
+
+(function() {
+         if(window.applicationCache)
+         {
+              if(window.applicationCache.status == 4)
+              {
+                  window.applicationCache.update();
+                  window.applicationCache.swapCache();
+              }
+         }
+         var hasStorage = (function() {
+      		try {
+      			var mod = "lame";
+        		localStorage.setItem(mod, mod);
+       			localStorage.removeItem(mod);
+       			return true;
+      		} 
+      		catch(e) {
+        		return false;
+      		}
+    	}());
+
+         if(hasStorage) {
+         	if(localStorage.getItem("clockClock") != null) {
+         		var cc = localStorage.getItem("clockColor").split(",");
+         		window.clockColor = [cc[0],cc[1],cc[2]];
+         	}
+         }
+    window.setClockColor = function(a) {
+    	if(Array.isArray(a) == true) {
+    		window.clockColor = a;
+    		if(hasStorage) {
+    			localStorage.setItem("clockColor",a);
+    		}
+    	}
+    	else {
+    		console.log("Error: Input is not an array");
+    	}
+    };
+
+    window.getClockColor = function() {
+    	if(hasStorage) {
+    		var cc = localStorage.getItem("clockColor").split(",");
+    		return [cc[0],cc[1],cc[2]];
+    	}
+    	else {
+    		return window.clockColor;
+    	}
+    };     
+    // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+    // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+ 
+	// requestAnimationFrame polyfill by Erik Möller
+	// fixes from Paul Irish and Tino Zijdel
+	
+	var lastTime = 0;
+	var vendors = ['ms', 'moz', 'webkit', 'o'];
+	for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+	window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+	window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame']
+	                           || window[vendors[x]+'CancelRequestAnimationFrame'];
+	}
+	
+	if (!window.requestAnimationFrame)
+	window.requestAnimationFrame = function(callback, element) {
+	    var currTime = new Date().getTime();
+	    var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+	    var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+	      timeToCall);
+	    lastTime = currTime + timeToCall;
+	    return id;
+	};
+	
+	if (!window.cancelAnimationFrame)
+	window.cancelAnimationFrame = function(id) {
+	    clearTimeout(id);
+	};
+	
+    var c   = document.getElementById('c'), //Get the canvas element
+	    ctx = c.getContext("2d"); //select the canvas.context
+	    
 
     //##########################
 	//Format the date accordingly 
@@ -101,10 +186,13 @@
 		{
 			dt = 0 + d.getDate().toString();
 		}
-		
+
+
 		return [[h,m,s],[dt,mn,y]];
 
+
 	};
+
 
 	var getWeekdayFormatted = function(d){
 		var dy;
@@ -136,49 +224,56 @@
 			break;
 		};
 
+
 		return dy;
 	};
+
 
 	//Create a function to render the canvas board after a particular time    
 	var r = function(){
 		var dt = new Date();
+		var cC = window.getClockColor();
 		//Get the date
 		var d = createFormattedDate(dt);
-	    //clear the board
+	        //clear the board
 		ctx.clearRect(0,0,c.width,c.height);
 		//save the font
 		ctx.font = "70pt Digital7Mono";
 		//create a background for time
-		ctx.fillStyle = "rgba(0,90,255,0.3)";
+		ctx.fillStyle ="rgba(" + cC[0] + "," + cC[1] + "," + cC[2] + ",0.3)";
 		ctx.fillText("88:88:88",10,210);
 		//add the time
-		ctx.fillStyle = "rgb(0,90,255)";
+		ctx.fillStyle = "rgb(" + cC[0] + "," + cC[1] + "," + cC[2] + ")"; 
 		ctx.fillText(d[0][0] + ":" + d[0][1] + ":" + d[0][2],10,210);
 		//save the font and change the size 
 		ctx.font = "50pt Digital7Mono";
 		//create background
-		ctx.fillStyle = "rgba(0,90,255,0.3)";
+		ctx.fillStyle = "rgba(" + cC[0] + "," + cC[1] + "," + cC[2] + ",0.3)";
 		ctx.fillText("88:88:8888",25,125);
 		//DEFINED
-		ctx.fillStyle = "rgb(0,90,255)";
+		ctx.fillStyle = "rgb(" + cC[0] + "," + cC[1] + "," + cC[2] + ")";
 		ctx.fillText( d[1][0] + ":" + d[1][1] + ":" + d[1][2], 25, 125 );
 		//Display which day is it eg "WED"
 		//Create a background
 		ctx.font = "20pt Digital7Mono";
-		ctx.fillStyle = "rgba(0,90,255,0.2)";
+		ctx.fillStyle = "rgba(" + cC[0] + "," + cC[1] + "," + cC[2] + ",0.2)";
 		ctx.fillText("888 888 888 888 888 888 888",20, 265);
 		//Now put a light layer of the days
-		ctx.fillStyle = "rgba(0,90,255,0.4)";
+		ctx.fillStyle = "rgba(" + cC[0] + "," + cC[1] + "," + cC[2] + ",0.4)";
 		ctx.fillText("MON TUE WED THU FRI SAT SUN",20, 265);
 		//Now get the weekday and display without transparency
-		ctx.fillStyle = "rgb(0,90,255)";
+		ctx.fillStyle = "rgb(" + cC[0] + "," + cC[1] + "," + cC[2] + ")";
 		ctx.fillText(getWeekdayFormatted(dt),20,265);
-	    //Set a timeout to perfrom the action after 1 sec	
-	setTimeout(r,1000);
+	    	//Set a timeout to perfrom the action after 1 sec	
+         	window.requestAnimationFrame(r);
 	};
+
 
 	r();
 })();
 </script>
 </body>
 </html>
+
+ 
+

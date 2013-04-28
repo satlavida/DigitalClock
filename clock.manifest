@@ -1,9 +1,17 @@
 CACHE MANIFEST
 
+<<<<<<< HEAD
 # version 0.3
+=======
+# version 1.8.3.2
+>>>>>>> gh-pages
 
 clock.html
 digital-7_mono-webfont.eot
 digital-7_mono-webfont.svg
 digital-7_mono-webfont.ttf
+<<<<<<< HEAD
 digital-7_mono-webfont.woff
+=======
+digital-7_mono-webfont.woff
+>>>>>>> gh-pages

@@ -107,9 +107,6 @@
     		if(hasStorage) {
     			localStorage.setItem("clockColor",a);
     		}
-    		else {
-    			window.clockColor = a;
-    		}
     	}
     	else {
     		console.log("Error: Input is not an array");
@@ -124,6 +121,8 @@
     		}
     		else{
     			window.setClockColor([0,90,255]);
+    			var cc = localStorage.getItem("clockColor").split(",");
+    			return [cc[0],cc[1],cc[2]];
     		}
     	}
     	else {

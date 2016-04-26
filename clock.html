@@ -115,7 +115,7 @@
 
     window.getClockColor = function() {
     	if(hasStorage) {
-    		if(localStorage.getItem("clockClock") != null) {
+    		if(localStorage.getItem("clockColor") != null) {
     			var cc = localStorage.getItem("clockColor").split(",");
     			return [cc[0],cc[1],cc[2]];
     		}

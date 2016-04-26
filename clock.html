@@ -63,7 +63,7 @@
 </style>
 </head>
 <body>
-<canvas height="500" width="400" id="c"></canvas>
+<canvas height="500" width="400" id="c" onclick="changeColor()"></canvas>
 
 
 <script type="text/javascript">
@@ -112,7 +112,8 @@
     		console.log("Error: Input is not an array");
     	}
     };
-
+    
+    
     window.getClockColor = function() {
     	if(hasStorage) {
     		if(localStorage.getItem("clockColor") != null) {
@@ -128,7 +129,13 @@
     	else {
     		return window.clockColor;
     	}
-    };     
+    }; 
+    
+    window.changeColor= function() {
+    	var color = window.promt("Enter Color","0,90,255");
+    	window.setColorClock(color.split(","));
+    }
+    
     // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
     // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
  

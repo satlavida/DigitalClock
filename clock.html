@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" manifest="clock.manifest">
+<!--<html lang="en" manifest="clock.manifest">-->
+<html>
 <head>
 <meta charset=utf-8 />
 <title>HTML5 Clock</title>
@@ -33,32 +34,39 @@
 
   article, aside, figure, footer, header, hgroup, 
   menu, nav, section { display: block; }
-  @media screen and (min-width:1000px)
+  @media screen and (min-width: 1340px) {
+	#c{
+  		position: absolute;
+  		left: 37%;
+  		top: 35%;
+  	}  
+  }
+  @media screen and (min-width:1000px) and (max-width: 1280px)
   {
   	#c{
   		position: absolute;
-  		left: 40%;
-  		top: 35%;
+  		left: 32%;
+  		top: 30%;
   	}
   }
   @media screen and (max-width:999px)
   {
   	#c{
   		position: absolute;
-  		left: 25%;
-  		top: 35%;
+  		top: 15%;
+		left: 25%;
   	}
   }
   @media screen and (max-width:480px)
   {
   	#c{
   		position: absolute;
-  		left: 10%;
   		top: 35%;
   	}
   }
   body{
   	background: #000;
+	  overflow: hidden;
   }
 </style>
 </head>

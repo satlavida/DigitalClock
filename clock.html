@@ -45,23 +45,23 @@
   /* Center and scale the canvas responsively */
   #c{
     display: block;
-    width: clamp(280px, 80vmin, 900px);
-    height: auto;
+    height: clamp(300px, 92vmin, 1600px);
+    width: auto;
   }
 
   /* Very large displays (e.g., 4K) */
   @media (min-width: 2560px) {
-    #c { width: 1000px; }
+    #c { height: 95vmin; }
   }
 
   /* iPhones and small phones */
   @media (max-width: 480px) {
-    #c { width: 92vmin; }
+    #c { height: 96vmin; }
   }
 
   /* iPads and tablets */
   @media (min-width: 768px) and (max-width: 1024px) {
-    #c { width: 75vmin; }
+    #c { height: 88vmin; }
   }
 
   /* Settings button */
@@ -204,6 +204,28 @@
     var c   = document.getElementById('c'), //Get the canvas element
 	    ctx = c.getContext("2d"); //select the canvas.context
 	    
+    var BASE_W = 400, BASE_H = 500; // logical drawing space
+
+    // Prepare canvas backing store for current CSS size and DPR, center content
+    function setupCanvasForDPR(){
+      var dpr = window.devicePixelRatio || 1;
+      var rect = c.getBoundingClientRect();
+      var cssW = rect.width;
+      var cssH = rect.height;
+      // Set backing resolution
+      var targetW = Math.max(1, Math.round(cssW * dpr));
+      var targetH = Math.max(1, Math.round(cssH * dpr));
+      if (c.width !== targetW) c.width = targetW;
+      if (c.height !== targetH) c.height = targetH;
+
+      // Compute scale to fit BASE_W x BASE_H into CSS box
+      var scale = Math.min(cssW / BASE_W, cssH / BASE_H);
+      var offsetX = (cssW - BASE_W * scale) / 2;
+      var offsetY = (cssH - BASE_H * scale) / 2;
+      // Reset and apply transform: first scale by DPR, then by logical scale, then translate to center
+      ctx.setTransform(1,0,0,1,0,0);
+      ctx.setTransform(dpr * scale, 0, 0, dpr * scale, dpr * offsetX, dpr * offsetY);
+    }
 
     //##########################
 	//Format the date accordingly 
@@ -285,12 +307,13 @@
 
 	// Render one tick (draw once)
 	var r = function(){
+		setupCanvasForDPR();
 		var dt = new Date();
 		var cC = window.getClockColor();
 		//Get the date
 		var d = createFormattedDate(dt);
-	        //clear the board
-		ctx.clearRect(0,0,c.width,c.height);
+	        //clear the board in logical units
+		ctx.clearRect(0,0,BASE_W,BASE_H);
 		//save the font
 		ctx.font = "70pt Digital7Mono";
 		//create a background for time
@@ -329,6 +352,10 @@
 	    scheduleNextTick();
 	  }, delay);
 	}
+
+	// Redraw on resize/orientation to adapt DPR and size instantly
+	window.addEventListener('resize', r);
+	window.addEventListener('orientationchange', r);
 
 	// Dialog wiring (color + wake lock)
 	var openBtn = document.getElementById('openSettings');

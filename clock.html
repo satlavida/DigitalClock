@@ -451,9 +451,12 @@
 		active.forEach(function(t){
 		  var rem = getRemainingMs(t);
 		  var txt = (t.name||'timer') + '  ' + formatHM(rem);
-		  // Backdrop for the full line (name + time)
-		  ctx.fillStyle = "rgba(" + cC[0] + "," + cC[1] + "," + cC[2] + ",0.25)";
-		  ctx.fillText("888888888888888888888  88888",20,y);
+		  // Backdrop for the full line (name + time), only where text exists
+		  var backdrop = txt.replace(/[^\s]/g, '8');
+		  if (backdrop.trim().length > 0) {
+		    ctx.fillStyle = "rgba(" + cC[0] + "," + cC[1] + "," + cC[2] + ",0.25)";
+		    ctx.fillText(backdrop,20,y);
+		  }
 		  // Foreground text
 		  ctx.fillStyle = "rgb(" + cC[0] + "," + cC[1] + "," + cC[2] + ")";
 		  ctx.fillText(txt,20,y);

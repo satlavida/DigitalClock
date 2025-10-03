@@ -234,6 +234,28 @@
     }
     function nowTs(){ return Date.now(); }
 
+    // Manage pause/resume
+    function getRemainingMs(t){
+      if (t.paused) return Math.max(0, t.remainingMs||0);
+      return Math.max(0, (t.endTs||0) - nowTs());
+    }
+    function isActiveTimer(t){
+      return getRemainingMs(t) > 0; // paused with remaining time or counting down
+    }
+    function pauseTimer(t){
+      if (t.paused) return t;
+      var rem = getRemainingMs(t);
+      t.paused = true; t.remainingMs = rem;
+      return t;
+    }
+    function resumeTimer(t){
+      if (!t.paused) return t;
+      var rem = Math.max(0, t.remainingMs||0);
+      t.paused = false; delete t.remainingMs;
+      t.endTs = nowTs() + rem;
+      return t;
+    }
+
     // Notification for completed timers
     async function notifyCompletedTimers(){
       var arr = loadTimers();
@@ -277,6 +299,7 @@
 	    ctx = c.getContext("2d"); //select the canvas.context
 	    
     var BASE_W = 400, BASE_H = 500; // logical drawing space
+    var CUR_SCALE = 1, CUR_OFFX = 0, CUR_OFFY = 0; // for hit-testing
 
     // Prepare canvas backing store for current CSS size and DPR, center content
     function setupCanvasForDPR(){
@@ -294,6 +317,7 @@
       var scale = Math.min(cssW / BASE_W, cssH / BASE_H);
       var offsetX = (cssW - BASE_W * scale) / 2;
       var offsetY = (cssH - BASE_H * scale) / 2;
+      CUR_SCALE = scale; CUR_OFFX = offsetX; CUR_OFFY = offsetY;
       // Reset and apply transform: first scale by DPR, then by logical scale, then translate to center
       ctx.setTransform(1,0,0,1,0,0);
       ctx.setTransform(dpr * scale, 0, 0, dpr * scale, dpr * offsetX, dpr * offsetY);
@@ -414,18 +438,35 @@
 		ctx.fillStyle = "rgb(" + cC[0] + "," + cC[1] + "," + cC[2] + ")";
 		ctx.fillText(getWeekdayFormatted(dt),20,265);
 
-		// Draw up to 3 active timers below the date
+		// Draw up to 3 active timers below the date with controls
 		var timers = loadTimers();
-		var active = timers.filter(function(t){ return nowTs() < t.endTs; }).sort(function(a,b){ return a.endTs - b.endTs; }).slice(0,3);
+		var active = timers.filter(isActiveTimer).sort(function(a,b){
+		  var aKey = a.paused ? Number.MAX_SAFE_INTEGER : (a.endTs||Number.MAX_SAFE_INTEGER);
+		  var bKey = b.paused ? Number.MAX_SAFE_INTEGER : (b.endTs||Number.MAX_SAFE_INTEGER);
+		  return aKey - bKey;
+		}).slice(0,3);
 		ctx.font = "18pt Digital7Mono";
 		var y = 300;
+		window.__timerHitAreas = [];
 		active.forEach(function(t){
-		  var rem = t.endTs - nowTs();
+		  var rem = getRemainingMs(t);
 		  var txt = (t.name||'timer') + '  ' + formatHM(rem);
+		  // Backdrop for the full line (name + time)
 		  ctx.fillStyle = "rgba(" + cC[0] + "," + cC[1] + "," + cC[2] + ",0.25)";
-		  ctx.fillText("888888888888888888888",20,y);
+		  ctx.fillText("888888888888888888888  88888",20,y);
+		  // Foreground text
 		  ctx.fillStyle = "rgb(" + cC[0] + "," + cC[1] + "," + cC[2] + ")";
 		  ctx.fillText(txt,20,y);
+		  // Controls: pause/resume and clear (right side)
+		  var btnY = y;
+		  var toggleLabel = t.paused ? "|>" : "||";
+		  var toggleX = BASE_W - 60; // left control
+		  var clearX = BASE_W - 20;  // right control
+		  ctx.fillText(toggleLabel, toggleX, btnY);
+		  ctx.fillText("X", clearX, btnY);
+		  // Record hit areas (approximate boxes around text in logical coords)
+		  window.__timerHitAreas.push({ id: t.id, action: 'toggle', x: toggleX - 8, y: btnY - 20, w: 30, h: 24 });
+		  window.__timerHitAreas.push({ id: t.id, action: 'clear',  x: clearX - 8,  y: btnY - 20, w: 24, h: 24 });
 		  y += 28;
 		});
 	};
@@ -446,7 +487,43 @@
 
 	// Redraw on resize/orientation to adapt DPR and size instantly
 	window.addEventListener('resize', r);
-	window.addEventListener('orientationchange', r);
+  window.addEventListener('orientationchange', r);
+
+	// Canvas hit testing for timer controls
+	function toLogicalCoords(evt){
+	  var rect = c.getBoundingClientRect();
+	  var cssX = evt.clientX - rect.left;
+	  var cssY = evt.clientY - rect.top;
+	  var lx = (cssX - CUR_OFFX) / CUR_SCALE;
+	  var ly = (cssY - CUR_OFFY) / CUR_SCALE;
+	  return { x: lx, y: ly };
+	}
+
+	c.addEventListener('click', function(evt){
+	  if (!window.__timerHitAreas || window.__timerHitAreas.length === 0) return;
+	  var p = toLogicalCoords(evt);
+	  for (var i=0;i<window.__timerHitAreas.length;i++){
+	    var h = window.__timerHitAreas[i];
+	    if (p.x >= h.x && p.x <= h.x+h.w && p.y >= h.y && p.y <= h.y+h.h){
+	      var arr = loadTimers();
+	      var idx = arr.findIndex(function(t){ return t.id === h.id; });
+	      if (idx === -1) return;
+	      var t = arr[idx];
+	      if (h.action === 'clear'){
+	        arr.splice(idx,1);
+	      } else if (h.action === 'toggle'){
+	        // Toggle pause/resume only if time remains
+	        if (getRemainingMs(t) <= 0){ /* ignore */ }
+	        else if (t.paused) resumeTimer(t); else pauseTimer(t);
+	        arr[idx] = t;
+	      }
+	      saveTimers(arr);
+	      r();
+	      try { if (dlg.open) renderTimerList(); } catch(e){}
+	      break;
+	    }
+	  }
+	});
 
 	// Dialog wiring (color + wake lock)
 	var openBtn = document.getElementById('openSettings');
@@ -494,7 +571,8 @@
       timers.slice(0,3).forEach(function(t){
         var row = document.createElement('div');
         row.className = 'timer-row';
-        var status = (nowTs() < t.endTs) ? ('in ' + formatHM(t.endTs-nowTs())) : 'completed';
+        var rem = getRemainingMs(t);
+        var status = t.paused ? ('paused ' + formatHM(rem)) : (rem > 0 ? ('in ' + formatHM(rem)) : 'completed');
         var left = document.createElement('div');
         left.textContent = (t.name||'timer');
         var right = document.createElement('div');

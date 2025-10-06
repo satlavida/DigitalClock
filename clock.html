@@ -448,6 +448,18 @@
 		ctx.font = "18pt Digital7Mono";
 		var y = 300;
 		window.__timerHitAreas = [];
+
+		// Wake Lock ON/OFF indicator (top-right above timers)
+		var awakeOn = (typeof keepAwakeEnabled !== 'undefined' && keepAwakeEnabled && ('wakeLock' in navigator) && typeof wakeLock !== 'undefined' && wakeLock && !wakeLock.released);
+		var wakeLabel = awakeOn ? 'ON' : 'OFF';
+		var wakeY = 290;
+		var wakeX = BASE_W - 80;
+		var wakeBackdrop = wakeLabel.replace(/[^\s]/g,'8');
+		ctx.fillStyle = "rgba(" + cC[0] + "," + cC[1] + "," + cC[2] + ",0.25)";
+		ctx.fillText(wakeBackdrop, wakeX, wakeY);
+		ctx.fillStyle = "rgb(" + cC[0] + "," + cC[1] + "," + cC[2] + ")";
+		ctx.fillText(wakeLabel, wakeX, wakeY);
+		window.__timerHitAreas.push({ id: 'wake', action: 'wake-toggle', x: wakeX - 10, y: wakeY - 20, w: 60, h: 26 });
 		active.forEach(function(t){
 		  var rem = getRemainingMs(t);
 		  var txt = (t.name||'timer') + '  ' + formatHM(rem);
@@ -510,6 +522,20 @@
 	    if (p.x >= h.x && p.x <= h.x+h.w && p.y >= h.y && p.y <= h.y+h.h){
 	      var arr = loadTimers();
 	      var idx = arr.findIndex(function(t){ return t.id === h.id; });
+	      // Handle wake toggle click separately
+	      if (h.action === 'wake-toggle'){
+	        var awakeOn = (typeof keepAwakeEnabled !== 'undefined' && keepAwakeEnabled && ('wakeLock' in navigator) && typeof wakeLock !== 'undefined' && wakeLock && !wakeLock.released);
+	        if (!awakeOn){
+	          keepAwakeEnabled = true;
+	          if ('wakeLock' in navigator) {
+	            requestWakeLock();
+	          } else {
+	            alert('Screen Wake Lock not supported');
+	          }
+	        }
+	        r();
+	        break;
+	      }
 	      if (idx === -1) return;
 	      var t = arr[idx];
 	      if (h.action === 'clear'){
